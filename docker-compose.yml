@@ -1,0 +1,47 @@
+version: '2'
+services:
+  webserver:
+    container_name: scrum-webserver
+    image: webdevops/php-nginx-dev:7.3
+    depends_on:
+      - dbserver
+    links:
+      - dbserver:dbserver
+    restart: always
+    expose:
+      - "80"
+    volumes:
+      - 'C:\Projects\ScrumAutomatization:/app'
+    ports:
+    - 80:80
+    env_file:
+      - 'C:\Projects\ScrumAutomatization\config.env'
+    networks:
+      net:
+        ipv4_address: 172.0.0.2
+  dbserver:
+    container_name: scrum-dbserver
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    expose:
+      - "3306"
+    ports:
+    - 3306:3306
+    volumes:
+      - 'C:\Projects\ScrumAutomatization\storage:/var/lib/mysql'
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      net:
+        ipv4_address: 172.0.0.3
+networks:
+  net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      config:
+        - subnet: 172.0.0.0/24
+          gateway: 172.0.0.1
+
